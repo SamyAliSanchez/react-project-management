@@ -1,8 +1,10 @@
+import ProjectSidebar from "./components/ProjectsSidebar.jsx";
+
 function App() {
   return (
-    <>
-      <h1 className="my-8 text-center text-5xl font-bold">Hello World</h1>
-    </>
+    <main className="h-screen my-8 px-8 bg-stone-900 text-stone-50">
+      <ProjectSidebar />
+    </main>
   );
 }
 
