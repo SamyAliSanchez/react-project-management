@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import Button from "./Button";
 
 const Modal = ({ children, buttonCaption, onOpen }) => {
   const dialog = useRef(null);
@@ -17,10 +18,13 @@ const Modal = ({ children, buttonCaption, onOpen }) => {
   return (
     <>
       {createPortal(
-        <dialog ref={dialog}>
+        <dialog
+          className="backdrop:bg-stone-900/90 p-4 rounded-md shadow-md"
+          ref={dialog}
+        >
           {children}
-          <form method="dialog">
-            <button onClick={open}>{buttonCaption}</button>
+          <form method="dialog" className="mt-4 text-right">
+            <Button onClick={open}>{buttonCaption}</Button>
           </form>
         </dialog>,
         document.getElementById("modal-root")
