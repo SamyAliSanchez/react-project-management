@@ -16,18 +16,6 @@ function App() {
     deleteTaskFromProject,
   } = useProjects();
 
-  // const handleSelectProject = (id) => {
-  //   setSelectProjectId(id);
-  // };
-
-  // const handleStartAddProject = () => {
-  //   setSelectProjectId(null);
-  // };
-
-  // const handleCancelAddProject = () => {
-  //   setSelectProjectId(undefined);
-  // };
-
   const selectedProject = projects?.find(
     (project) => project.id === selectProjectId
   );
