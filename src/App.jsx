@@ -54,7 +54,18 @@ function App() {
     );
   };
 
-  const handleDeleteTask = () => {};
+  const handleDeleteTask = (id) => {
+    setProjects((prevProjects) =>
+      prevProjects.map((project) =>
+        project.id === selectProjectId
+          ? {
+              ...project,
+              tasks: project.tasks.filter((task) => task.id !== id),
+            }
+          : project
+      )
+    );
+  };
 
   const renderContent = () => {
     if (selectProjectId === null)
