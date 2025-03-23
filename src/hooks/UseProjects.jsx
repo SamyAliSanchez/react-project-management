@@ -16,10 +16,10 @@ export function useProjects() {
   // Agregar un nuevo proyecto
   const addProject = (newProject) => {
     const projectToSend = {
-      name: newProject.title, // Cambiar 'title' por 'name'
+      name: newProject.title,
       description: newProject.description,
       dueDate: newProject.dueDate,
-      tasks: [], // Asegúrate de que el proyecto tenga una lista de tareas vacía por defecto
+      tasks: [],
     };
 
     if (!projectToSend.name) {

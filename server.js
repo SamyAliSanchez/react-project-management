@@ -10,16 +10,14 @@ const app = express();
 
 console.log(process.env.MONGO_URI);
 
-// Configuración de CORS para permitir solicitudes desde tu frontend
 const corsOptions = {
-  origin: "http://localhost:5173", // Permitir solicitudes desde el frontend
-  methods: "GET,POST,DELETE,PUT", // Agregar PUT aquí
-  allowedHeaders: "Content-Type,Authorization", // Cabeceras permitidas
+  origin: "http://localhost:5173", 
+  methods: "GET,POST,DELETE,PUT", 
+  allowedHeaders: "Content-Type,Authorization", 
 };
 
-app.use(cors(corsOptions)); // Usa CORS con las opciones configuradas
+app.use(cors(corsOptions));
 
-// Otras configuraciones de tu servidor
 app.use(express.json());
 app.use("/api/projects", projectRoutes);
 
