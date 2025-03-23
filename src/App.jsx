@@ -17,7 +17,7 @@ function App() {
   } = useProjects();
 
   const selectedProject = projects?.find(
-    (project) => project.id === selectProjectId
+    (project) => project._id === selectProjectId
   );
 
   const renderContent = () => {
