@@ -1,20 +1,31 @@
 import express from "express";
 import Project from "../models/Project.js";
 const router = express.Router();
+import validateProject from "../middleware/validateProject.js"
 
-// Obtener todos los proyectos
 router.get("/", async (req, res) => {
   try {
-    const projects = await Project.find(); // Consultar proyectos en la base de datos
-    res.json(projects); // Devolver los proyectos encontrados en formato JSON
+    const projects = await Project.find(); // query projects in the db
+    res.json(projects); // return the found projects in JSON format
   } catch (err) {
-    console.error(err);  // Agregar esto para imprimir el error y obtener más detalles
+    console.error(err);
     res.status(500).json({ message: "Error al obtener proyectos", error: err.message });
   }
 });
 
-// Crear un nuevo proyecto
-router.post("/", async (req, res) => {
+router.get("/:id", async (req, res) => {
+  try {
+    const project = await Project.findById(req.params.id);
+    if (!project) {
+      return res.status(404).json({ message: "Proyecto no encontrado" });
+    }
+    res.json(project); // return the found project
+  } catch (err) {
+    res.status(500).json({ message: "Error al obtener el proyecto", error: err.message });
+  }
+});
+
+router.post("/", validateProject, async (req, res) => {
   try {
     const { name, description, dueDate } = req.body;
     if (!name) {
@@ -22,22 +33,21 @@ router.post("/", async (req, res) => {
     }
 
     const newProject = new Project({ name, description, dueDate });
-    await newProject.save(); // Guardar el proyecto en la base de datos
-    res.status(201).json(newProject); // Devolver el proyecto creado en formato JSON
+    await newProject.save(); // save in the db
+    res.status(201).json(newProject);
   } catch (err) {
-    console.error(err);  // Imprimir el error para mayor claridad
+    console.error(err);
     res.status(500).json({ message: "Error al crear el proyecto", error: err.message });
   }
 });
 
-// Eliminar un proyecto
 router.delete("/:id", async (req, res) => {
   try {
-    const project = await Project.findByIdAndDelete(req.params.id); // Eliminar proyecto por ID
+    const project = await Project.findByIdAndDelete(req.params.id);
     if (!project) {
       return res.status(404).json({ message: "Proyecto no encontrado" });
     }
-    res.json({ message: "Proyecto eliminado" }); // Confirmar eliminación
+    res.json({ message: "Project removed" }); 
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Error al eliminar el proyecto", error: err.message });
@@ -50,8 +60,8 @@ router.put("/:projectId/tasks", async (req, res) => {
     if (!project) {
       return res.status(404).json({ message: "Proyecto no encontrado" });
     }
-    
-    const newTask = { text: req.body.text, completed: false };  // Suponiendo que quieres agregar una nueva tarea
+
+    const newTask = { text: req.body.text, completed: false };
     project.tasks.push(newTask);
     
     await project.save();
@@ -61,7 +71,6 @@ router.put("/:projectId/tasks", async (req, res) => {
   }
 });
 
-// Eliminar una tarea de un proyecto
 router.delete("/:projectId/tasks/:taskId", async (req, res) => {
   try {
     const project = await Project.findById(req.params.projectId);
@@ -73,6 +82,5 @@ router.delete("/:projectId/tasks/:taskId", async (req, res) => {
     res.status(500).json({ message: "Error al eliminar tarea" });
   }
 });
-
 
 export default router;

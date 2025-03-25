@@ -5,16 +5,20 @@ export function useProjects() {
   const [projects, setProjects] = useState([]);
   const [selectProjectId, setSelectProjectId] = useState(undefined);
 
-  // Obtener proyectos desde el backend
   useEffect(() => {
-    axios
-      .get("http://localhost:5001/api/projects")
-      .then((res) => setProjects(res.data))
-      .catch((err) => console.error(err));
+    const fetchProjects = async () => {
+      try {
+        const res = await axios.get("http://localhost:5001/api/projects");
+        setProjects(res.data);
+      } catch (err) {
+        console.error("Error fetching projects", err);
+      }
+    };
+
+    fetchProjects();
   }, []);
 
-  // Agregar un nuevo proyecto
-  const addProject = (newProject) => {
+  const addProject = async (newProject) => {
     const projectToSend = {
       name: newProject.title,
       description: newProject.description,
@@ -22,71 +26,67 @@ export function useProjects() {
       tasks: [],
     };
 
-    if (!projectToSend.name) {
-      alert("El nombre del proyecto es obligatorio");
-      return;
+    try {
+      const res = await axios.post(
+        "http://localhost:5001/api/projects",
+        projectToSend
+      );
+      setProjects((prev) => [...prev, res.data]);
+      setSelectProjectId(res.data._id);
+    } catch (err) {
+      console.error("Error to add project", err.response?.data || err);
     }
-
-    axios
-      .post("http://localhost:5001/api/projects", projectToSend)
-      .then((res) => {
-        setProjects((prev) => [...prev, res.data]);
-      })
-      .catch((err) => {
-        console.error(
-          "Error al agregar el proyecto:",
-          err.response?.data || err
-        );
-      });
   };
 
-  // Eliminar un proyecto
-  const deleteProject = (id) => {
-    axios
-      .delete(`http://localhost:5001/api/projects/${id}`)
-      .then(() =>
-        setProjects((prev) => prev.filter((project) => project._id !== id))
-      )
-      .catch((err) => console.error(err));
+  const deleteProject = async (id) => {
+    try {
+      const res = await axios.delete(
+        `http://localhost:5001/api/projects/${id}`
+      );
+      setProjects((prev) => prev.filter((project) => project._id !== id));
+      setSelectProjectId(undefined);
+    } catch (err) {
+      console.error("Error to delete the project", err);
+    }
   };
 
-  // Agregar tarea a un proyecto
-  const addTaskToProject = (taskText) => {
+  const addTaskToProject = async (taskText) => {
     if (!taskText.trim()) {
-      alert("El texto de la tarea no puede estar vacío");
+      alert("Text cannot be empty");
       return;
     }
-
-    // Crear un nuevo objeto de tarea
+    // Create task object
     const newTask = {
-      id: new Date().toISOString(), // Crear un ID único para la tarea
+      id: new Date().toISOString(),
       text: taskText,
     };
 
-    axios
-      .put(
+    try {
+      const res = await axios.put(
         `http://localhost:5001/api/projects/${selectProjectId}/tasks`,
         newTask
-      ) // Llamada PUT para agregar tarea
-      .then((res) => {
-        const updatedProjects = projects.map((project) =>
+      );
+      const updatedTask = res.data;
+      setProjects((prevProjects) =>
+        prevProjects.map((project) =>
           project._id === selectProjectId
-            ? { ...project, tasks: [...project.tasks, res.data] }
+            ? // ? { ...project, tasks: [...project.tasks, res.data.tasks] }
+              { ...project, tasks: updatedTask.tasks }
             : project
-        );
-        setProjects(updatedProjects);
-      })
-      .catch((err) => console.error("Error al agregar tarea:", err));
+        )
+      );
+    } catch (err) {
+      console.error("Error adding task", err);
+    }
   };
 
-  // Eliminar tarea de un proyecto
-  const deleteTaskFromProject = (taskId) => {
-    axios
-      .delete(
+  const deleteTaskFromProject = async (taskId) => {
+    try {
+      const res = await axios.delete(
         `http://localhost:5001/api/projects/${selectProjectId}/tasks/${taskId}`
-      )
-      .then(() => {
-        const updatedProjects = projects.map((project) =>
+      );
+      setProjects((prevProjects) => {
+        const updateProjects = prevProjects.map((project) =>
           project._id === selectProjectId
             ? {
                 ...project,
@@ -94,9 +94,11 @@ export function useProjects() {
               }
             : project
         );
-        setProjects(updatedProjects);
-      })
-      .catch((err) => console.error("Error al eliminar tarea:", err));
+        setProjects(updateProjects);
+      });
+    } catch (err) {
+      console.error("Error deleting task", err);
+    }
   };
 
   return {
